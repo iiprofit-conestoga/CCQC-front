@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import LogoutPage from './pages/Logout';
+import Layout from './components/Layout/Layout';
+import Dashboard from './pages/Dashboard';
+import ListData from './components/ListData/ListData';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Login />} /> {/* Login Page */}
+        <Route path="/logout" element={<LogoutPage />} /> {/* Logout Page */}
+        
+        {/* Private Routes */}
+        <Route path="/app/*" element={<Layout />}>
+          {/* These should be relative to '/app' */}
+          <Route path="dashboard" element={<Dashboard />} /> {/* Nested Dashboard Page */}
+          <Route path="user-profile" element={<ListData />} /> {/* Nested User Profile Page */}
+          <Route path="user-role" element={<ListData />} /> {/* Nested User Profile Page */}
+          <Route path="user-permission" element={<ListData />} /> {/* Nested User Profile Page */}
+        </Route>
 
-export default App
+        {/* Catch-All Route */}
+        <Route path="*" element={<NotFound />} /> {/* 404 Page */}
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;

@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // For navigation
+import { useDispatch } from "react-redux"; // Import useDispatch
+import { setUser } from "../store/slices/AuthSlice"; // Import the setUser action
 import { FcGoogle } from "react-icons/fc"; // For Google icon
 import { FaCar } from "react-icons/fa"; // For Car icon
 import { loginUser } from "../services/Auth"; // Assuming this is where the login function is defined
@@ -8,6 +11,16 @@ const LoginPage = () => {
   const [password, setPassword] = useState(""); // State for password
   const [error, setError] = useState(""); // State for error message
   const [loading, setLoading] = useState(false); // State for loading state
+  const navigate = useNavigate(); // For navigation
+  const dispatch = useDispatch(); // Get the dispatch function
+
+  // Check for access token on page load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/app/dashboard"); // Redirect to dashboard if token exists
+    }
+  }, [navigate]);
 
   // Handle form submission
   const handleLogin = async (e) => {
@@ -17,9 +30,17 @@ const LoginPage = () => {
 
     try {
       const result = await loginUser(username, password); // Call login API
-      console.log("Login successful:", result); // Handle success (e.g., save token)
-      // You can store the token in localStorage, Redux, or redirect to another page
+      let { accessToken, username:fetchedUsername, role, id } = result.data;
+      let user = { username:fetchedUsername, role, id };
+
+      dispatch(setUser({ user, token: accessToken })); // Dispatch setUser action
+
+      localStorage.setItem("token", accessToken); // Save token to local storage
+      localStorage.setItem("user", JSON.stringify(user)); // Save user details
+      
+      navigate("/app/dashboard"); // Redirect to dashboard after successful login
     } catch (err) {
+      console.error("Login failed:", err);
       setError("Login failed. Please check your credentials."); // Set error if login fails
     } finally {
       setLoading(false); // Set loading to false once the request completes
